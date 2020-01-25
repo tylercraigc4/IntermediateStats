@@ -1,0 +1,57 @@
+name: "statistics-notebook"
+navbar:
+  title: "Statistics Notebook"
+  left:
+    - text: "R Help"
+      menu:
+        - text: "R Commands"
+          href: RCommands.html
+        - text: "R Markdown Hints"
+          href: RMarkdownHints.html
+        - text: "R Cheatsheets & Notes"
+          href: RCheatSheetsAndNotes.html
+        - text: "Data Sources"
+          href: DataSources.html
+    - text: "Describing Data"
+      menu:
+        - text: "Graphical Summaries"
+          href: GraphicalSummaries.html
+        - text: "Numerical Summaries"
+          href: NumericalSummaries.html
+    - text: "Making Inference"
+      menu:
+        - text: "Making Inference"
+          href: MakingInference.html
+        - text: "t Tests"
+          href: tTests.html
+        - text: "Wilcoxon Tests"
+          href: WilcoxonTests.html
+        - text: "ANOVA"
+          href: ANOVA.html
+        - text: "Kruskal-Wallis"
+          href: Kruskal.html
+        - text: "Linear Regression"
+          href: LinearRegression.html
+        - text: "Logistic Regression"
+          href: LogisticRegression.html
+        - text: "Chi Squared Tests"
+          href: ChiSquaredTests.html
+        - text: "Randomization Testing"
+          href: PermutationTests.html
+    - text: "Analyses"
+      menu:
+        - text: "Analysis Rubric"
+          href: ./Analyses/AnalysisRubric.html
+        - text: "Good Example Analysis"
+          href: ./Analyses/StudentHousing.html
+        - text: "Poor Example Analysis"
+          href: ./Analyses/StudentHousingPOOR.html
+        - text: "Rent Analysis"
+          href: ./Analyses/Rent.html
+        - text: "Stephanie Analysis"
+          href: ./Analyses/Stephanie.html
+
+          
+output_dir: '.'
+
+  

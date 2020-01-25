@@ -1,0 +1,95 @@
+---
+title: "Rent"
+output: 
+  html_document:
+    theme: cerulean
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+
+**Week 1 Analysis**
+
+```{r, include=FALSE}
+library(mosaic)
+library(pander)
+library(tidyverse)
+library(DT) 
+library(ggplot2)
+library(plotly)
+library(shiny)
+library(tidyr)
+Rent <- read_csv("../Data/Rent.csv")
+```
+
+<br />
+
+## Background
+
+Here is a data table showing the available approved housing apartment options at BYU-Idaho for single students. There are 122 entries comprising 57 female and 65 male apartment options.
+
+```{r, warning=FALSE}
+# Code to get you started. 
+# View(...) works great in the Console, but datatable(...) must be
+# used instead within an R-chunk.
+datatable(Rent, options=list(lengthMenu = c(3,10,30)), extensions="Responsive")
+```
+
+
+## Graphic
+
+<!-- Present an interesting graphic using the Rent data set. Do not create the same graphics that are shown in the [Good Example Analysis](./Analyses/StudentHousing.html), but you can certainly use those graphics as a guide to inspire you on what to do yourself. -->
+
+
+```{r, warning=FALSE}
+# Use this R-chunk to...
+# ...Create an interesting graphic using the Rent data set.
+capacity_vs_price <- ggplot(data = Rent, aes(x = Rent$Capacity, y = Rent$Price)) +
+  geom_point(aes(color = Rent$Capacity)) +
+  geom_smooth(method = lm, se = FALSE) +
+  labs(x = "Total Apartment Capacity", y = "Price in Dollars per Semester", color = "apartment capacity", title = "Apartment Capacity vs Rent Price")
+
+capacity_vs_price
+
+```
+
+
+<!-- Write a few statements here that explain your graphic and what it shows. -->
+
+This grahic is a scatter plot that compares the total apartment capacity in terms of people and the price of rent in dollars for one semester. According to the graph there seems to be a moderate linear relationship between the total apartment capacity and the price in dollars.
+
+
+
+
+```{r, warning=FALSE}
+# Use this R-chunk to...
+# ...compute and display a meaningful table of numerical summaries supporting your above graphic.
+Rent <- drop_na(Rent, 4:5)
+reg_fun <- lm(Rent$Price ~ Rent$Capacity, data = Rent)
+slope <- round(coef(reg_fun)[2], 3)
+par(mfrow = c(1,3))
+plot(reg_fun, which = 1:2)
+plot(reg_fun$residuals)
+r_value <- cor(Rent$Capacity, Rent$Price)
+pander(summary.lm(reg_fun))
+
+
+
+
+
+```
+
+<!-- Write a few statements here that introduce your table of numerical summaries and what they show. -->
+|x
+|---
+|
+
+So here I made a a couple of residual plots and a normal Q-Q plot just to check if the data was normal and there was no megaphone shaped distribution in the residuals. The data used seems to qualify for doing a linear regression analysis. Next I have a couple of tables that show our intersept identified as (intercept) and slope which is shown as Rent$Capacity. I also included the R squared value. Based off of the R squared value our r correlation value should be 0.501 which proves a moderate positive linear correlation between the apartment complex's total capacity and the price per semester to rent a room at that complex.
+
+
+## Conclusion
+
+In conclusion, if a student going to BYUI wants to live at a larger complex with more people then they might have to spend more money to live at that complex.
+
+
+
