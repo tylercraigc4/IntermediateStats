@@ -14,12 +14,19 @@ output:
 library(mosaic)
 library(tidyverse)
 library(pander)
-library(DT) # If you get an error stating: 
+library(DT)
+library(tidyr)
+library(ggplot2)
+library(ggthemes)
+library(ggrepel)
+# If you get an error stating: 
             # Error in library(DT): there is no package called 'DT'
             # You will need to run: install.packages("DT") 
             # in your Console, then try "Knit HTML" again.
 Rent <- read_csv("../Data/Rent.csv")
+View(Rent)
 ```
+
 
 <br />
 
@@ -39,18 +46,33 @@ Write your response to Stephanie below. Use the "Rent" dataset, good statistical
 
 Dear Stephanie,
 
-Write your response here... (delete this line).
 
 
 <!-- Hint, you should probably subset the Rent dataset to only show the "Approved Women's Housing" since Stephanie won't be interested in Male Housing options. Notice how this text in green doesn't show up in the HTML output because we used the HTML comment tags around this text. --> 
 
 ```{r}
 # Code to get you started, be sure to use a subset of Rent instead of Rent in this code though.
-datatable(Rent, options=list(lengthMenu = c(3,10,30)), extensions="Responsive")
+# Wrangle the data
+datatable(Rent, options = list(lengthMenu = c(3,10,30)), extensions = "Responsive")
+stephs_choice_rent <- Rent %>%
+  filter(Gender == "F", Price <= 1200, Capacity >= 100, WalkingMinutes < 10)
+View(stephs_choice_rent)
+
+
+
 ```
 
 
-
+```{r}
+# Visualize the data
+p = ggplot(data = stephs_choice_rent) +
+  geom_point(aes(x = WalkingMinutes, y = Capacity, size = Capacity, color = Apartment)) +
+   geom_text_repel(data = stephs_choice_rent, aes(x = WalkingMinutes, y = Capacity, label = Apartment, colour = Apartment), show.legend = FALSE, nudge_x = -1,  nudge_y = -3) +
+  labs(x = "Walking Minutes to Campus", y = "Total Apartment Capacity", title = "Walking Time vs Capacity") +
+  theme_bw() +
+  theme(legend.position = "none")
+p
+```
 
 
 
