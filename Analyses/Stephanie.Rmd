@@ -24,7 +24,6 @@ library(ggrepel)
             # You will need to run: install.packages("DT") 
             # in your Console, then try "Knit HTML" again.
 Rent <- read_csv("../Data/Rent.csv")
-View(Rent)
 ```
 
 
@@ -40,45 +39,43 @@ Stephanie[^1] is a student that will be starting school at BYU-Idaho next semest
 
 ----
 
-Write your response to Stephanie below. Use the "Rent" dataset, good statistical analysis, and clear writing to make some well supported suggestions to her about apartments that meet her stated criterions. You are free to use other criterion that you think she might find more meaningful as well.
-
 ## Response
 
 Dear Stephanie,
+
+  Based off of your criteria I suggest you rent your apartment at Birch Plaza. I recommend it because it is the complex with the most amount of people that you can meet for the price that you wanted, and it is very close to campus being just a minute long walk away. Below I have a scatterplot graph that compares walking minutes to campus and price. Apartments that have the lowest walking minutes and the highest capacity are great candidates. These apartments will show up at the top left of the graph. In contrast the worst candidates will show up at the bottom right. I will also include a table that shows more specifics about each apartment including their phone number, address and exact price per semester. 
 
 
 
 <!-- Hint, you should probably subset the Rent dataset to only show the "Approved Women's Housing" since Stephanie won't be interested in Male Housing options. Notice how this text in green doesn't show up in the HTML output because we used the HTML comment tags around this text. --> 
 
-```{r}
+```{r, warning=FALSE}
 # Code to get you started, be sure to use a subset of Rent instead of Rent in this code though.
 # Wrangle the data
-datatable(Rent, options = list(lengthMenu = c(3,10,30)), extensions = "Responsive")
 stephs_choice_rent <- Rent %>%
   filter(Gender == "F", Price <= 1200, Capacity >= 100, WalkingMinutes < 10)
-View(stephs_choice_rent)
-
-
 
 ```
 
 
-```{r}
+```{r,warning=FALSE}
 # Visualize the data
 p = ggplot(data = stephs_choice_rent) +
-  geom_point(aes(x = WalkingMinutes, y = Capacity, size = Capacity, color = Apartment)) +
+  geom_point(aes(x = WalkingMinutes, y = Capacity, size = Capacity, color = Apartment, alpha = 0.9)) +
    geom_text_repel(data = stephs_choice_rent, aes(x = WalkingMinutes, y = Capacity, label = Apartment, colour = Apartment), show.legend = FALSE, nudge_x = -1,  nudge_y = -3) +
-  labs(x = "Walking Minutes to Campus", y = "Total Apartment Capacity", title = "Walking Time vs Capacity") +
+  labs(x = "Walking Minutes to Campus", y = "Total Apartment Capacity", title = "Walking Time vs Capacity", subtitle = "Bigger points correspond to higher capacity") +
   theme_bw() +
   theme(legend.position = "none")
 p
+# table for Stephanie that shows more specific info
+stephs_table <- stephs_choice_rent %>%
+  group_by(Apartment) %>%
+  select(Apartment, Address, Phone, Price, Capacity) %>%
+  pander(caption = "here is your table so you can see specifics")
+stephs_table
 ```
 
-
-
-
-
-
-
+## Conclusion
+If Stephanie wants the best apartment she should go with Birch Plaza.
 
 [^1]: Note that Stephanie is a fictional character who is based on real experiences of many faculty and staff here at BYU-Idaho.

@@ -18,13 +18,14 @@ library(mosaic)
 library(DT)
 library(pander)
 library(car)
+library(tidyverse)
 
 # To get the "late" dataset into your R Console, 
 # you need to go to your file menu of R-Studio and select
 # "Session, Set working directory, To source file location"
 # Then click the green "play" arrow in 
 # the top right corner of this gray R-Chunk. 
-late <- read.csv("../Data/late.csv", header=TRUE)
+late <- read.csv("../../Data/late.csv", header=TRUE)
 # Then type:
 # > View(late)
 # in your R Console
@@ -49,10 +50,27 @@ late <- read.csv("../Data/late.csv", header=TRUE)
 
 ### Overview
 <!-- Be sure to add your own background here before beginning the Analysis. -->
+Here we have private daycares and we want to know if instituting a fine will reduce the amount of children that get picked up late by their parents.
 
+## Hypothesis
 
+##### First question and pair of hypothesis:
+1. Is there a difference between the control group and the fined group?
+- null hypothesis: There is no difference between the groups
 
+- alternative hupothesis: There is a difference between the groups
 
+##### Second question and pair of hypothesis:
+2. Is there a difference between the weeks for the number of childeren that have been picked up late?
+- null hypothesis: There is no difference between the weeks for the number of childeren that have been picked up late
+
+- alternative hypothesis: There is a difference between the weeks for the number of childeren that have been picked up late
+
+##### Third question and pair of hypothesis:
+3. Is there a difference between the amount of late children before the fine, during the fine and after the fine?
+- null hypothesis: There is no difference in the amount of late children between weeks where the fine is introduced, during the fine period and after the fine period.
+
+- alternative hypothesis: There is a difference in the amount of late children between weeks where the fine is introduced, during the fine period and after the fine period.
 
 
 
@@ -129,5 +147,57 @@ pander(Late)
 
 ## Analysis
 
+```{r, warning=FALSE}
 
+Late_week_groups <- Late %>% mutate(week_group = case_when(Week %in% c(1,2,3,4) ~ "before",
+                                                           Week %in% c(5:16) ~ "during",
+                                                           Week %in% c(17,18,19,20) ~ "after"))
+  
+between_control_treatment_week <- aov(No.ofLateChildren ~ as_factor(Treatment) + as_factor(week_group) + as_factor(Week) + as_factor(Treatment): as_factor(week_group), data = Late_week_groups)
+pander(summary(between_control_treatment_week))
+```
+
+###### For this analysis an alpha of 0.05 will be used
+It looks like we can reject the null hypothesis for all of our questions and accept the alternatives that there is a difference in the amount of late children among the control and fined groups, among the weeks, and among the different groups before the fine, during the fine and after the fine. To look at what exactly those differences are we can look at the graphs below that show further detail.
+
+## Graphical Summary and Interpretations
+
+```{r, warning=FALSE}
+par(mfrow = c(1,2))
+plot(between_control_treatment_week, which = 1:2)
+```
+
+This is just checking our residuals and the normality of the data which looks fine enough to do an ANOVA analysis.
+
+```{r, warning=FALSE}
+
+xyplot(No.ofLateChildren ~ Treatment, data = Late, type = c("p", "a"), main = "Significance of Fining", col = "blue")
+```
+
+Here we get some suprising results. We see that with a fine the amount of late children that are being picked up actually increases.
+
+```{r, warning=FALSE}
+xyplot(No.ofLateChildren ~ Week, data = Late, groups = Treatment, type = c("p", "a"), main = "child centers that are fined show more late children than the control", auto.key = list(corner = c(1,1)))
+```
+
+At first it seems like when the fine is initiated that the amount of late children goes down but notice the control group also goes down during week 5 to the same level. This leads me to believe that the fine didn't play a significant role for the drop in late children during week 5. But afterwards the amount of late children is significantly higher than the control group.
+
+```{r, warning=FALSE}
+xyplot(No.ofLateChildren ~ Week, data = Late_week_groups, groups = week_group, type = c("p", "a"), auto.key = list(corner = c(1,1)), main = "Comparing the number of late children before, during and after the fine")
+```
+
+This graph just shows that the lowest number of late children was the period before the fine. During the fine it increased and after the fine was taken away it didn't drop that much. The table below shows the average amount of kids that were picked up late during these different periods of time.
+
+```{r, warning=FALSE}
+mean_across_groups_summarization <- Late_week_groups %>%
+  filter(Treatment == "Fine") %>%
+  group_by(week_group) %>%
+  summarise(average = mean(No.ofLateChildren))
+
+pander(mean_across_groups_summarization, caption = "Means of late children before the fine, during the fine and after the fine")
+```
+
+
+## Conclusion
+Here we get some suprising results. We see that with a fine the amount of late children that are being picked up actually increases with a fine. I will give a couple of potential reasons. This experiment was done on private daycare places meaning that the people that could afford them did not mind spending the extra money for picking their child up late as they were more well off to begin with. The second reason could be that the parents felt personaly attacked by the fine so they kept their children late in day care out of spite for the facility. Anyways to uncover the true reason behind the increase in the amount of late children with a fine we need to look at other data mabye more specific to the parents.
 

@@ -11,8 +11,16 @@ library(tidyverse)
 library(DT)
 library(pander)
 library(readr)
+library(car)
+library(lattice)
+```
 
-HSS <- read_csv("HighSchoolSeniors.csv")
+```{r, message=FALSE, warning=FALSE}
+
+HSS <- read_csv("../../Data/HighSchoolSeniors.csv")
+HSS2 <- HSS %>% 
+  drop_na() %>% 
+  filter(Handed == "Right-Handed" | Handed == "Left-Handed")
 #Remember: select "Session, Set Working Directory, To Source File Location", and then play this R-chunk into your console to read the HSS data into R. 
 ```
 
@@ -36,5 +44,80 @@ HSS <- HSS %>%
 ```
 
 -->
+
+
+## Background
+
+I have data from a High School dataset and I want to do an independent sample t-test to see if left handed people have a higher average score in a memory game versus right handed people.
+
+
+## Questions and Hypotheses
+
+question : Do left handed people have a higher average score in a memory game than right handed people?
+
+* Defining variables: 
+$$\mu_1 = \text{the mean memory score for left handed people}$$ 
+$$\mu_2 = \text{the mean memory score for right handed people}$$ 
+
+Hypotheses : 
+$$H_0: \mu_1 - \mu_2 = 0$$
+
+$$H_a: \mu_1 - \mu_2 > 0$$
+
+## Analysis
+
+```{r, warning=FALSE}
+
+par(mfrow = c(1,2))
+qqPlot(HSS2$Score_in_memory_game[HSS2$Handed=="Left-Handed"], ylab = "left handed")
+qqPlot(HSS2$Score_in_memory_game[HSS2$Handed=="Right-Handed"], ylab = "right handed")
+
+
+```
+The some of the data for the right handed memory scores don't look normal but it's just a few data points compared to all the rest so we can keep doing our t-test.
+
+
+```{r, warning=FALSE}
+test <- t.test(HSS2$Score_in_memory_game[HSS2$Handed=="Left-Handed"],
+               HSS2$Score_in_memory_game[HSS2$Handed=="Right-Handed"],
+       data = HSS2,
+       mu = 0, 
+       alternative = "greater", 
+       conf.level = 0.95)
+
+pander(test)
+
+```
+
+I'm going to use an alpha value of 0.05 here. I see that the p value is 0.4997 which is well above our alpha so it looks like we can reject the alternative hypothesis that left handed people have a highter average score in the memory game than right handed people.
+
+## Graphical Summary
+
+```{r, warning=FALSE}
+xyplot(Score_in_memory_game ~ as_factor(Handed), data = HSS2, type=c("p","a"), main = "comparing means for the memory game", xlab = "Handedness", ylab = "Memory Game Score", sub = "the mean looks the same for both groups")
+
+```
+
+## Interpretation and Conclusion
+Here we can see visually that the means look the relatively the same for both left and right handed people for the memory score. So according to this and our t-test there is no significant difference in the memory of left and right handed people.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -17,4 +17,100 @@ in your Console to see available datasets in R that you could use for this Analy
 ```{r, include=FALSE}
 library(mosaic)
 library(ResourceSelection) 
+library(readr)
+library(tidyverse)
+library(pander)
 ```
+
+```{r warning=FALSE, include=FALSE}
+
+employment <- read_csv("../../Data/mental_illness_employment.csv")
+
+
+fact_level <- c("Some highschool", "High School or GED", "Some Undergraduate", "Completed Undergraduate", "Some Masters", "Completed Masters", "Some Phd", "Completed Phd")
+employment <- employment %>% 
+  mutate(Education = factor(Education, levels = fact_level)) %>% 
+  mutate(EducationLevel = case_when(Education == "Some highschool" ~ 1,
+                            Education == "High School or GED" ~ 2,
+                            Education == "Some Undergraduate" ~ 3,
+                            Education == "Completed Undergraduate" ~ 4,
+                            Education == "Completed Masters" ~ 5,
+                            Education == "Some Phd" ~ 6,
+                            Education == "Completed Phd" ~ 7,))
+ 
+```
+
+### Background
+
+I will use logistic regression to try to predict mental illness based off of education level. Here is the logistic regression model:
+
+$$
+  P(Y_i = 1|\, x_i) = \frac{e^{\beta_0 + \beta_1 x_i}}{1+e^{\beta_0 + \beta_1 x_i}} = \pi_i
+$$
+
+where for observation $i$: 
+
+* $Y_i = 1$ denotes that at least one education level predicts a mental illness, 
+* $Y_i=0$ denotes no education level predicts a metal illness, and 
+* $x_i$ denotes the specific education level being tested.
+
+### Questions and Hypotheses
+
+Question: Is education level a good predictor of mental illness?
+
+Hypotheses: We will use the Deviance Goodness of Fit Test because there are replicated values of each $x_i$
+
+$$
+  H_0: \pi_i = \frac{e^{\beta_0 + \beta_1 x_i}}{1+e^{\beta_0 + \beta_1 x_i}}
+$$
+$$
+  H_a: \pi_i \neq \frac{e^{\beta_0 + \beta_1 x_i}}{1+e^{\beta_0 + \beta_1 x_i}}
+$$
+
+
+### Analysis
+
+Here is a logistic regression test:
+
+```{r, warning=FALSE}
+mental_glm <- glm(mental_illness ~ EducationLevel, data = employment, family = binomial)
+summary(mental_glm) %>% pander()
+
+```
+
+##### I will use an alpha of 0.05:
+
+Here we see that education level p-value is above 0.05 so it isn't a good indication that it affects the probability of mental illness. 
+
+
+I will use the Deviance Goodness of Fit Test in order to determine if logistic regression is a good test to use because there are many repeated x-values.
+
+Here is the value for the goodness of fit test:
+```{r, warning=FALSE}
+pander(pchisq(354.0, 320, lower.tail = FALSE))
+```
+
+This value is above 0.05 remember that the null hypothesis was that logistic regression would be a good fit for the data so we can conclude the null.
+
+
+### Graphical Summary
+
+```{r, warning=FALSE}
+
+ggplot(data = employment, mapping = aes(x = EducationLevel, y = mental_illness)) +
+  geom_point(mapping = aes(color = Education)) +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"), se = FALSE) +
+  labs(x = "Education Level", y = "Probability of Mental Illness", title = "Education Level is Not a Good Predictor of Mental Illness") +
+  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5))
+  
+```
+
+* Here we see the probabilities graphically. But we shouldn't trust this beause our p-value for education level was too high. The logistic fit is good though.
+
+
+### Interpretation
+
+It seems like the education level of an individual is not a good indication of their mental health. There are probably some other variables that would be better to look at.
+
+
+

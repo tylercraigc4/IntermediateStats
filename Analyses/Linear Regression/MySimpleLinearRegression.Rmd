@@ -10,7 +10,8 @@ output:
 # Load your libraries
 library(car)
 library(tidyverse)
-
+library(readr)
+library(pander)
 # Load your data after saving a csv file in your Data folder.
 # You can use either 
 #   someName <- read.csv("../Data/YourDataFileName.csv", header=TRUE)
@@ -20,6 +21,7 @@ library(tidyverse)
 
 # Don't forget to run "Session -> Set Working Directory -> To Source file location"
 
+steps_to_calories <- read_csv("../../linear_regression_data.csv")
 ```
 
 
@@ -42,5 +44,66 @@ Come up with a simple linear regression of your own creation.
 
 
 ## Background
+
+I collected walking data off of my google fit app. This app tracks my steps and how many calories I burn through the day walking. I put this data in a CSV file and will do a linear regression analyses to see if there is a relationship between amount of steps taken and the amount of calories I burn.
+
+## Question and Hypotheses:
+
+* Is there a linear relationship between steps walked and calories burned?
+
+* Null Hypotheses : the slope is equal to 0.
+* Alternative Hypotheses : the slope is not equal to 0.
+
+
+## Analysis
+
+```{r, warning=FALSE}
+steps_lm <- lm(calories_burned ~ steps_walked, data = steps_to_calories)
+summary(steps_lm) %>% pander()
+
+par(mfrow=c(1,3))
+plot(steps_lm, which=1:2)
+plot(steps_lm$residuals, main = "Residuals vs Order", xlab = "", ylab = "Residuals")
+```
+
+The simple linear regression analyses is a good test for this because:
+
+1) There seems to be a linear relationship. 
+2) The error terms seem to be normaly distributed.
+3) The variance is constant.
+4) The x values are measured and fixed without error.
+5) The error terms are independent.
+
+These 5 points can be checked with the residuals and the Q-Q plot.
+ 
+We will use an alpha of 0.05 with this test. The P values are lower than this so we will reject the null. 
+
+## Graph
+
+```{r, warning=FALSE}
+
+ggplot(data = steps_to_calories) +
+  geom_point(mapping = aes(x = steps_walked, y = calories_burned, color = "orangered3")) +
+  geom_smooth(method = lm, se = FALSE, mapping = aes(x = steps_walked, y = calories_burned)) +
+  labs(title = "Steps Walked vs Calories Burned", x = "steps walked", y = "calories burned") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
+
+```
+
+The graph shows a very strong positive linear relationship between steps walked and calories burned
+
+## Interpretation
+
+The slope is 1.346 and the r-squared value is 0.8573 which shows a strong positive linear relationship between steps walked and calories burned.
+
+## Conclusion
+
+There is a positive strong linear relationship between steps walked and calories burned. We can reject the null hypotheses.
+
+
+
+
+
 
 

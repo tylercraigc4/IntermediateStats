@@ -18,6 +18,7 @@ library(mosaic)
 library(car)
 library(pander)
 library(DT) #You may need to run: install.packages("DT") 
+library(ggbeeswarm)
 ```
 
 ```{r, eval=FALSE}
@@ -75,7 +76,7 @@ The results from the study can be found in the `Friendly` data set in R after lo
 Click the "Code" button to see the data.
 
 
-```{r}
+```{r, warning=FALSE}
 datatable(Friendly, options=list(lengthMenu = c(3,10,30)))
 ```
 
@@ -91,6 +92,59 @@ datatable(Friendly, options=list(lengthMenu = c(3,10,30)))
 <!-- Note that your goal is to use the Friendly data to show whether or not the Meshed or Before methods have any positive benefit on memory recall. -->
 
 
+# Questions and Hypotheses
+* The question: Is the before and after method for remembering better than just the control?
+* The null hypothesis: There is no difference between the effectiveness of standard free recall (control) and the other methods.
+* The alternative hypothesis: One of the other methods is better than the standard free recall (control) method.
+
+
+# Analysis
+First, we will perform a qq test to check the normality of each group of data. It looks like our we have some data that isn’t normal from the “before” method and the “meshed” method. It seems like the same people weren’t used for each test of the memory recall methods so we will use and independent samples test. So, to do our analysis on the data the most appropriate test to use is the Wilcox Rank-Sum (Mann-Whitney) Test. I will do three separate Wilcox Rank-Sum tests first, seeing if the “before” method is better than the control. Second, I will see if the “meshed” is better than the controlled. Third, I will see if the “meshed” is better than the “before” method.
+
+### qq test to check the normality of the data:
+```{r, warning=FALSE}
+qqPlot(correct ~ condition, data = Friendly)
+
+```
+
+###  First Wilcox Rank-Sum test seeing if the “before” method is better than the control
+```{r, warning=FALSE}
+a <- wilcox.test(Friendly$correct[Friendly$condition == "Before"],Friendly$correct[Friendly$condition == "SFR"] ,mu = 0, alternative = "greater")
+
+pander(a)
+
+```
+
+Using an alpha value of 0.05 we see that we can accept the alternative hypothesis that the "before" method was better than the control because our p value is under 0.05.
+
+### Second Wilcox Rank-Sum test seeing if the “meshed” method is better than the control
+```{r, warning=FALSE}
+a <- wilcox.test(Friendly$correct[Friendly$condition == "Meshed"],Friendly$correct[Friendly$condition == "SFR"] ,mu = 0, alternative = "greater")
+
+pander(a)
+
+```
+
+It looks like our p-value is just over 0.05 so we have to reject the alternative hypothesis that the "meshed" method is better than the control method. It also seems like we can stop here since we accepted that the "before" method was better than the control.
+
+# Graphical Summary
+I will show a box-plot combined with a jitter plot to show the distribution of the data. This will give us the spread of the data and more valueable information than just a boxplot would show especially for so few data points.
+
+```{r, warning=FALSE}
+ggplot(data = Friendly) +
+  geom_boxplot(mapping = aes(x = condition, y = correct, fill = condition)) +
+  geom_quasirandom(mapping = aes(x = condition, y = correct)) +
+  labs(title = "Distribution of our data points", subtitle = "the box plots can be missleading with so few data points", x = "memorization style", y = "number of remembered words")
+      
+         
+```
+
+# Interpretation
+
+It seems like there’s a really high 75th percentile for the SFR random control method that is comparable to the other methods but actually looking at the data there are only a few points up there and they’re very spread out compared to the other memorization methods in which more data points are higher up and grouped together. This shows that the other methods look more effective as a memorization technique particularly the “before” method which we proved in the analysis.
+
+# Conclusion
+Based off of our analysis and graphical summary with a small limited dataset it seems like the best way to memorize information is to review old content before diving into learning new information. 
 
 
 

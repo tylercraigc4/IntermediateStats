@@ -1,0 +1,85 @@
+---
+title: "Consulting Project"
+author: "Tyler Craig"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: StatsBYUI::math325_analysis
+---
+
+```{r load_library, include=FALSE, message=FALSE, warning=FALSE}
+# Use this R-Chunk to load your libraries!
+library(mosaic)
+library(tidyverse)
+library(readr)
+library(pander)
+```
+
+```{r load_data, include=FALSE, message=FALSE, warning=FALSE}
+# Use this R-Chunk to load your datasets!
+income <- read_csv("../Data/week_to_net_income.csv")
+
+```
+
+### Background
+
+I'm writing this linear regression analysis to see if there is a linear trend to the net income for my friend's IBC company. 
+
+
+### Question and Hypotheses
+
+question : Is there a linear relationship to this data?
+
+* Null Hypothesis: the slope is 0
+* Alternative Hypothesis: the slope isn't 0
+
+### Analysis
+
+```{r, warning=FALSE}
+net_lm = lm(income ~ week, data = income)
+summary(net_lm) %>% pander()
+
+
+par(mfrow=c(1,3))
+plot(net_lm, which=1:2)
+plot(net_lm$residuals, main = "Residuals vs Order", xlab = "", ylab = "Residuals")
+```
+
+I will use an alpha value of 0.05 and it looks like our p value is under that for the slope so we can accept our alternative hypothesis that the slope is nonzero. It looks like our R squared value is close to 1 which means that there is a strong linear relationship in the data.
+
+The residuals look ok but the normal Q-Q plot looks like it has an outlier in it but we can assume it's still safe to go forward with the linear regression analysis.
+
+### Graphical Summary
+
+```{r, warning=FALSE}
+
+ggplot(data = income, mapping = aes(x = week, y = income)) +
+  geom_point(mapping = aes(color = "orangered3")) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(title = "Income vs Week", y = "Net Income", x = "Week") +
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5))
+
+predict(net_lm, data.frame(week=6), interval = "prediction")
+
+```
+
+Here the linear relationship is very apparent and it looks like my friend is steadily making more and more net income for his IBC company.
+
+### Interpretation and Conclusion
+
+I can try to use this linear model to predict the net income in future weeks till the end of the semester. These could be good goals to try to accomplish for their business.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

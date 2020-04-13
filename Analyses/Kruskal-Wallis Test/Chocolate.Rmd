@@ -15,7 +15,9 @@ library(car)
 library(DT)
 library(pander)
 library(readr)
-choc <- read_csv("../Data/Chocolate.csv")
+library(tidyverse)
+library(ggbeeswarm)
+choc <- read_csv("../../Data/Chocolate.csv")
 ```
 
 ```{r, eval=FALSE}
@@ -68,6 +70,59 @@ If you want to give your critiquers some ideas about what you have questions on 
 <!--Begin writing your Analysis after this point.-->
 
 ## Background
+
+I'm trying to find out which country between America, Hungary, France and Switzerland has the highest rated chocolate. I served my mission in Hungary so I want to see how it stacks up against some of the bigger chocolate bar producers.
+
+## Question and hypothesis
+
+Question: Which country between America, Hungary, France and Switzerland has the highest rated choclolate?
+
+* Null Hypothesis: All samples are from the same distribution.
+
+* Alternative Hypothesis: At least one sample's distribution is stochastically different.
+
+## Analysis
+
+```{r, warning=FALSE}
+
+choc_filtered <- choc %>% filter(Location %in% c("U.S.A.", "Hungary", "France", "Switzerland"))
+pander(kruskal.test(Rating ~ Location, data = choc_filtered))
+```
+
+Here we'll use an alpha of 0.05 
+
+Based off of our P-value being less than 0.05 as calculated with the Kruskal-Wallis test we can reject our null hypotesis. We can accept that at least one sample's distribution is stochastically different.
+
+## Graphical Summary
+  
+```{r, warning = FALSE}
+ggplot(data = choc_filtered, aes(x = Location, y = Rating, fill = Location)) +
+  geom_boxplot() +
+  labs(title = "Very little difference in the medians")
+
+```
+
+Based off of the box plot we can't tell a whole lot about which chocolate is the best and we can see that the median is pretty much the same for all the countries.
+
+```{r, warning = FALSE}
+choc_filtered %>%
+  group_by(Location) %>%
+  summarise(average = mean(Rating)) %>%
+  pander()
+  
+
+```
+
+To get a closer look I found the average rating for all the chocolates in the countries and found that Switzerland had the highest average out of all of them with my mission country of Hungary coming in third place.
+
+
+## Interpretation
+
+Based of of this test and the means I found that the highest average scoring chocolate is made by Switzerland. Well they are famous for their chocolates after all. My mission country of Hungary didn't do so badly compared to the other countries and was ahead of the United States.
+
+
+
+
 
 
 
